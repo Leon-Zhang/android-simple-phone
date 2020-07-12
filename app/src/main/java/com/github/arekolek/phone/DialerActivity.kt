@@ -28,6 +28,7 @@ import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import androidx.core.content.PermissionChecker.checkSelfPermission
 import androidx.core.net.toUri
 import kotlinx.android.synthetic.main.activity_dialer.*
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -49,6 +50,9 @@ class DialerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dialer)
         phoneNumberInput.setText(intent?.data?.schemeSpecificPart)
+        btnClearListen.setOnClickListener {
+            tvListen.text=""
+        }
 
         initRsLog()
     }
@@ -82,6 +86,16 @@ class DialerActivity : AppCompatActivity() {
         }
     }
 
+    fun getCurrentTimeStamp(): String? {
+        return try {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            dateFormat.format(Date())
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
     fun initRsLog(){
         val manager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
         phoneStateListener = object : PhoneStateListener() {
@@ -94,7 +108,7 @@ class DialerActivity : AppCompatActivity() {
 
                 if(location!=null) {
                     Log.d(TAG, location!!.toString())
-                    logToTV(TAG, "onCellLocationChanged, "+location!!.toString())
+                    logToTV(TAG, "onCellLocationChanged["+getCurrentTimeStamp()+"], "+location!!.toString())
                 }
             }
 
@@ -103,7 +117,7 @@ class DialerActivity : AppCompatActivity() {
 
                 if(cellInfo!=null) {
                     Log.d(TAG, "onCellInfoChanged, cell size = "+cellInfo!!.size.toString())
-                    logToTV(TAG, "onCellInfoChanged, "+cellInfo)
+                    logToTV(TAG, "onCellInfoChanged["+getCurrentTimeStamp()+"], "+cellInfo)
                 }
             }
         }
@@ -219,7 +233,7 @@ class DialerActivity : AppCompatActivity() {
 
         //Calling the methods of TelephonyManager the returns the information
         val IMEINumber = tm.deviceId
-        val subscriberID = tm.deviceId
+        val subscriberID = tm.subscriberId
         val SIMSerialNumber = tm.simSerialNumber
         val networkCountryISO = tm.networkCountryIso
         val SIMCountryISO = tm.simCountryIso
